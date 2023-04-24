@@ -1,5 +1,5 @@
 # Author: Tyler Mccann (@tylerdotrar)
-# Arbitrary Version Number:  1.0.0
+# Arbitrary Version Number:  1.0.1
 #
 # Parameters:
 # --port (default: 443)
@@ -13,8 +13,6 @@ from functools import wraps
 
 app = flask.Flask(__name__, static_url_path='')
 
-
-# INTERNAL DIRECTORIES
 CLIENT_UPLOADS   = './uploads'
 CLIENT_DOWNLOADS = './downloads'
 
@@ -25,7 +23,7 @@ if not os.path.isdir(CLIENT_DOWNLOADS):
 
 
 # FILE RAW CONTENT
-@app.route('/raw/<string:FILE_NAME>', methods=['GET'])
+@app.route('/r/<string:FILE_NAME>', methods=['GET'])
 def ShowContent(FILE_NAME):
     path = CLIENT_DOWNLOADS + '/' + FILE_NAME
     isFile = os.path.isfile(path)
@@ -41,7 +39,7 @@ def ShowContent(FILE_NAME):
 
 
 # FILE DOWNLOAD
-@app.route('/download/<string:FILE_NAME>', methods=['GET'])
+@app.route('/d/<string:FILE_NAME>', methods=['GET'])
 def DownloadFile(FILE_NAME):
     try:
         return send_from_directory(CLIENT_DOWNLOADS, FILE_NAME, as_attachment=True)
@@ -50,7 +48,7 @@ def DownloadFile(FILE_NAME):
 
 
 # FILE UPLOAD
-@app.route('/upload/<string:FILE_NAME>', methods=['POST'])
+@app.route('/u/<string:FILE_NAME>', methods=['POST'])
 def upload_file(FILE_NAME):
     if request.method == 'POST':
         f = request.files['file']
