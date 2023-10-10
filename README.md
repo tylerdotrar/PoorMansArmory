@@ -11,7 +11,7 @@ Originally developed for [OSEP](https://www.offsec.com/courses/pen-300/), this r
 
 
 
-```powershell
+```
                                          _ _
                                         | | |    ____  __  __      _     
                                         | | |   |  _ \|  \/  |    / \     
@@ -23,24 +23,24 @@ The Sick Scripts™ at Home:              | | |   |  __/| |  | |_ / ___ \ _
 
 
 ## Table of Contents <a name="tableContents"></a>
-1. [**`Import-PMA.ps1`**](#importPMA)
-2. [**`pma_server.py`**](#pmaServer)
-    - [**`Working with WebClientHelpers`**](#webClientHelpers)
-    - [**`Advanced Example`**](#advancedExample)
-3. [**`revshells`**](#revshells)
-    - [**`Get-RevShell.ps1`**](#getRevShell)
-    - [**`Get-Stager.ps1`**](#getStager)
-4. [**`officemacros`**](#officemacros)
-    - [**`Get-MacroInfestedWordDoc.ps1`**](#macroDoc)
-    - [**`Get-TemplateInjectedPayload.ps1`**](#templateInject)
-5. [**`privesc`**](#privesc)
-    - [**`Enum-Services.ps1`**](#enumServices)
-    - [**`Invoke-FodHelperUACBypass.ps1`**](#fodHelper)
-6. [**`misc`**](#misc)
-    - [**`Helpers`**](#helpers)
-    - [**`Proof-of-Concept`**](#poc)
-    - [**`Educational`**](#educational)
-7. [**`License`**](#license)
+1. [**Import-PMA.ps1**](#importPMA)
+2. [**pma_server.py**](#pmaServer)
+    - [**Working with WebClientHelpers**](#webClientHelpers)
+    - [**Advanced Example**](#advancedExample)
+3. [**revshells**](#revshells)
+    - [**Get-RevShell.ps1**](#getRevShell)
+    - [**Get-Stager.ps1**](#getStager)
+4. [**officemacros**](#officemacros)
+    - [**Get-MacroInfestedWordDoc.ps1**](#macroDoc)
+    - [**Get-TemplateInjectedPayload.ps1**](#templateInject)
+5. [**privesc**](#privesc)
+    - [**Enum-Services.ps1**](#enumServices)
+    - [**Invoke-FodHelperUACBypass.ps1**](#fodHelper)
+6. [**misc**](#misc)
+    - [**Helpers**](#helpers)
+    - [**Proof-of-Concept**](#poc)
+    - [**Educational**](#educational)
+7. [**License**](#license)
 
 ---
 
