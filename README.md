@@ -58,25 +58,28 @@ while ignoring the less important ones (i.e., ``misc``, ``officemacros/lib``).
 ## 2. pma_server.py <a name="pmaServer"></a>
 ```
 # Synopsis:
-# Simple Flask web server for bi-directional file transfers, supporting
-# both HTTP and HTTPS using self-signed certificates.  Intended to be
-# used with the PowerShell WebClient helper script(s).
+# Simple Flask web server for bi-directional file transfers (POST and GET),
+# supporting both HTTP and HTTPS using self-signed certificates.  Intended
+# to be used with the PowerShell WebClient helper script(s), as well as
+# templated Web Exploitation (XXE & XXE) payloads.
 
-# Version 4.0.0 introduces Web Exploitation support:
+# Web Exploitation Support:
 # o  XSS Cookie Exfiltration           (/cookie/<cookie_value>)
 # o  XSS Saved Credential Exfiltration (/user/<username>, /password/<password>)
 # o  XSS Keylogging                    (/keys/<key>)
 # o  XXE Exfiltration                  (/xxe?content=<file_content>)
 
-# Version 4.2.0 introduces "OPSEC" support:
-# o  Static URL with file uploads/downloads specified in HTTP headers.
+# Miscellaneous:
+# o  Using '--ssl' with no specified port will toggle to 443.
+# o  "Opsec" support: static URL with filenames specified in HTTP headers.
+# o  PoC: HTML, MD, and PHP file rendering at in '/render/<file_name>'.
 
 # Parameters:
-# --directory <string>  (default: ./uploads)
-# --port <int>          (default: 80)
-# --ssl                 (default: false)
-# --debug               (default: false)
-# --help
+# -d | --directory <string>  (default: ./uploads)
+# -p | --port <int>          (default: 80,443)
+# -s | --ssl                 (default: false)
+# -D | --debug               (default: false)
+# -h | --help
 ```
 
 ![pma_server](https://cdn.discordapp.com/attachments/855920119292362802/1156685487151530085/image.png?ex=6515dece&is=65148d4e&hm=270a1d232abd1ae53c1396ee6e0b5c47bc8bae45f2b0bc8c19ce908d4e4d442b&)

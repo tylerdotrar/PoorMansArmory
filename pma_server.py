@@ -1,5 +1,5 @@
 # Author: Tyler McCann (@tylerdotrar)
-# Arbitrary Version Number:  4.2.0
+# Arbitrary Version Number:  4.2.1
 # Link: https://github.com/tylerdotrar/PoorMansArmory
 
 # Synopsis:
@@ -8,18 +8,23 @@
 # to be used with the PowerShell WebClient helper script(s), as well as
 # templated Web Exploitation (XXE & XXE) payloads.
 
-# Version 4.0.0 introduces Web Exploitation support:
+# Web Exploitation Support:
 # o  XSS Cookie Exfiltration           (/cookie/<cookie_value>)
 # o  XSS Saved Credential Exfiltration (/user/<username>, /password/<password>)
 # o  XSS Keylogging                    (/keys/<key>)
 # o  XXE Exfiltration                  (/xxe?content=<file_content>)
 
+# Miscellaneous:
+# o  Using '--ssl' with no specified port will toggle to 443.
+# o  "Opsec" support: static URL with filenames specified in HTTP headers.
+# o  PoC: HTML, MD, and PHP file rendering at in '/render/<file_name>'.
+
 # Parameters:
-# --directory <string>  (default: ./uploads)
-# --port <int>          (default: 80)
-# --ssl                 (default: false)
-# --debug               (default: false)
-# --help
+# -d | --directory <string>  (default: ./uploads)
+# -p | --port <int>          (default: 80,443)
+# -s | --ssl                 (default: false)
+# -D | --debug               (default: false)
+# -h | --help
 
 
 import os, flask, argparse, sys
@@ -28,10 +33,13 @@ from flask import request, send_from_directory
 from werkzeug.utils import secure_filename
 from datetime import datetime    # v4.0.0 (Cookie Exfil)
 from urllib.parse import unquote # v4.0.0 (Cookie Exfil)
-import subprocess, markdown      # v4.2.0 (File Rendering)
+import subprocess, markdown      # v4.2.0 (PoC File Rendering)
 
 
 app = flask.Flask(__name__, static_url_path='')
+
+
+### FILE TRANSFERS ###
 
 
 # DOWNLOAD FILES (Classic)
@@ -91,6 +99,9 @@ def file_handler():
             return '[-] File not found in request.', 400
 
 
+### WEB EXPLOITATION ###
+
+
 # XSS COOKIE EXFILTRATION
 @app.route('/cookie/<string:COOKIE_VALUE>', methods=['GET'])
 def ReadCookie(COOKIE_VALUE):
@@ -106,7 +117,7 @@ def ReadCookie(COOKIE_VALUE):
     return '[+] Logged cookie.'
 
 
-# XSS SAVED CREDENTIAL EXFILTRATION
+# XSS SAVED CREDENTIAL EXFILTRATION ###
 # - Log username 
 @app.route('/user/<string:USER_VALUE>', methods=['GET'])
 def ReadUsername(USER_VALUE):
@@ -152,6 +163,9 @@ def ReadSpace():
     return '[+] Logged space.'
  
  
+ ### PROOF OF CONCEPT ###
+ 
+ 
 # FILE RENDERING (WIP / PoC)
 @app.route('/render/<string:FILE_NAME>')
 def RenderFile(FILE_NAME):
@@ -185,24 +199,25 @@ def RenderFile(FILE_NAME):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Flask-based Web Server for File Transfers, supporting both HTTP and HTTPS via Self-Signed Certificates')
     parser.add_argument('-d', '--directory', default="./uploads", type=str, help='Target file directory (default: ./uploads)')
-    parser.add_argument('-p', '--port', default=80, type=int, help='Server port to listen on (default: 80)')
+    parser.add_argument('-p', '--port', default=80, type=int, help='Server port to listen on (default: 80,443)')
     parser.add_argument('-s', '--ssl', action='store_const', const='adhoc', default=None, help='Enable HTTPS support via self-signed certificates (default: false)')
     parser.add_argument('-D', '--debug', action='store_true', help='Toggle Flask debug mode (default: false)')
     args = parser.parse_args()
-
-
+    
+    # Toggle default port if unspecified
+    if args.ssl and args.port == 80:
+        args.port = 443
+    
+    # Set target directory for file transfers
     CLIENT_UPLOADS   = os.path.abspath(args.directory)
-
-
-    # Create './uploads' directory if it does not exist
+    
+    # Create default './uploads' directory if selected but does not exist
     if CLIENT_UPLOADS == './uploads':
         if not os.path.isdir(CLIENT_UPLOADS):
             os.mkdir(CLIENT_UPLOADS)
-            
     elif not os.path.isdir(CLIENT_UPLOADS):
         print('[-] Could not find directory. Exiting.')
         sys.exit()
-
 
     # Confirm Arguments
     print(f'Server Arguments...')

