@@ -12,7 +12,7 @@ Originally developed for [OSEP](https://www.offsec.com/courses/pen-300/), **Poor
 
 ---
 
-![Banner](https://cdn.discordapp.com/attachments/855920119292362802/1210100426901422080/image.png?ex=65e954d8&is=65d6dfd8&hm=d54be4834bd9af070f084499b6c7930f0d6552b5af5d49a17a0f59da9001ed4e&)
+![Banner](https://github.com/tylerdotrar/PoorMansArmory/assets/69973771/8cd88e9a-7b98-4223-b6db-dd0ad5542f0a)
 
 
 ## Table of Contents <a name="tableContents"></a>
