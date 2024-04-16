@@ -1,5 +1,5 @@
 # Author: Tyler McCann (@tylerdotrar)
-# Arbitrary Version Number:  4.2.1
+# Arbitrary Version Number:  4.2.2
 # Link: https://github.com/tylerdotrar/PoorMansArmory
 
 # Synopsis:
@@ -209,10 +209,10 @@ if __name__ == '__main__':
         args.port = 443
     
     # Set target directory for file transfers
-    CLIENT_UPLOADS   = os.path.abspath(args.directory)
+    CLIENT_UPLOADS = os.path.abspath(args.directory)
     
     # Create default './uploads' directory if selected but does not exist
-    if CLIENT_UPLOADS == './uploads':
+    if args.directory == './uploads':
         if not os.path.isdir(CLIENT_UPLOADS):
             os.mkdir(CLIENT_UPLOADS)
     elif not os.path.isdir(CLIENT_UPLOADS):

